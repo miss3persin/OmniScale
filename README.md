@@ -2,19 +2,43 @@
 <img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
 
-# Run and deploy your AI Studio app
+# OmniScale (Vite + React + Gemini)
 
-This contains everything you need to run your app locally.
+OmniScale is an AI-assisted powerscaling app for:
+- character/entity indexing,
+- cross-verse battle simulation, and
+- hierarchical tier reference.
 
-View your app in AI Studio: https://ai.studio/apps/drive/1cpnwNnZqPm1IuSjbnpSKPrNBJG6mtVlt
+## Tech stack
+- Vite
+- React + TypeScript
+- Gemini API (`@google/genai`)
 
-## Run Locally
+## Run locally
 
-**Prerequisites:**  Node.js
-
+**Prerequisites:** Node.js 20+
 
 1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+   ```bash
+   npm install
+   ```
+2. Create an env file:
+   ```bash
+   cp .env.example .env
+   ```
+3. Set your API key in `.env`:
+   ```bash
+   VITE_GEMINI_API_KEY=your_api_key_here
+   ```
+4. Start dev server:
+   ```bash
+   npm run dev
+   ```
+
+## Build
+
+```bash
+npm run build
+```
+
+If `VITE_GEMINI_API_KEY` is missing, AI actions will show a clear runtime error message.

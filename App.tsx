@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { AppView, Entity, PowerTier, HierarchyDefinition, BattleMode, VersusVerdict } from './types';
+import { AppView, Entity, HierarchyDefinition, BattleMode, VersusVerdict } from './types';
 import Sidebar from './components/Sidebar';
 import { 
   Search, Plus, Trash2, ArrowRightLeft, Target, Shield, Gauge, 
@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { geminiService } from './geminiService';
 import StatRadar from './components/StatRadar';
+import { MOCK_ENTITIES } from './constants';
 
 const HIERARCHY_DATA: HierarchyDefinition[] = [
   {
@@ -61,7 +62,7 @@ const App: React.FC = () => {
   const [darkMode, setDarkMode] = useState(true);
   const [entities, setEntities] = useState<Entity[]>(() => {
     const saved = localStorage.getItem('omni-entities');
-    return saved ? JSON.parse(saved) : [];
+    return saved ? JSON.parse(saved) : MOCK_ENTITIES;
   });
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
@@ -91,6 +92,17 @@ const App: React.FC = () => {
     }
   }, [darkMode]);
 
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setSelectedEntity(null);
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
+
   const handleAddEntity = async () => {
     const name = window.prompt("Enter character name to index (e.g. 'Saitama', 'Goku', 'SCP-3812'):");
     if (!name || name.trim() === "") return;
@@ -102,7 +114,7 @@ const App: React.FC = () => {
       setSelectedEntity(newEntity);
     } catch (error) {
       console.error("Analysis failed", error);
-      window.alert("Synchronization error with Omni-Vault. The entity could not be retrieved. Please check your network or try again later.");
+      window.alert(error instanceof Error ? error.message : "Synchronization error with Omni-Vault. The entity could not be retrieved. Please check your network or try again later.");
     } finally {
       setLoading(false);
     }
@@ -120,6 +132,7 @@ const App: React.FC = () => {
       setVerdict(result);
     } catch (error) {
       console.error("Versus simulation failed", error);
+      window.alert(error instanceof Error ? error.message : "Versus simulation failed.");
     } finally {
       setLoading(false);
     }
@@ -644,8 +657,14 @@ const App: React.FC = () => {
 
         {/* Detail Modal */}
         {selectedEntity && (
-          <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 md:p-10 bg-black/95 backdrop-blur-3xl animate-in fade-in zoom-in-95 duration-500">
-            <div className={`w-full max-w-7xl max-h-[95vh] overflow-y-auto rounded-[4rem] border transition-all ${darkMode ? 'bg-zinc-950 border-zinc-800 text-white shadow-[0_0_150px_rgba(0,0,0,1)]' : 'bg-white border-zinc-200 text-black shadow-2xl'} relative custom-scrollbar`}>
+          <div
+            className="fixed inset-0 z-[150] flex items-center justify-center p-4 md:p-10 bg-black/95 backdrop-blur-3xl animate-in fade-in zoom-in-95 duration-500"
+            onClick={() => setSelectedEntity(null)}
+          >
+            <div
+              className={`w-full max-w-7xl max-h-[95vh] overflow-y-auto rounded-[4rem] border transition-all ${darkMode ? 'bg-zinc-950 border-zinc-800 text-white shadow-[0_0_150px_rgba(0,0,0,1)]' : 'bg-white border-zinc-200 text-black shadow-2xl'} relative custom-scrollbar`}
+              onClick={(event) => event.stopPropagation()}
+            >
               <button 
                 onClick={() => setSelectedEntity(null)}
                 className={`sticky top-8 float-right mr-8 md:mr-12 p-4 rounded-2xl transition-all z-20 shadow-2xl active:scale-90 ${darkMode ? 'bg-zinc-900 border border-zinc-800 text-white hover:bg-white hover:text-black' : 'bg-black text-white hover:bg-zinc-800'}`}
